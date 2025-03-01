@@ -3,148 +3,724 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Word Ladder Game</title>
+    <title>Word Ladder Adventure Game</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+      
+      body {
+        font-family: 'Press Start 2P', cursive;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #000;
+        color: #ffd900;
+        text-shadow: 0 0 5px #ffd900;
+        background-image: 
+          linear-gradient(to right, rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      
+      h1, h2, h3, h4 {
+        text-align: center;
+        color: #0ff;
+        text-shadow: 0 0 10px #0ff;
+        margin-bottom: 30px;
+      }
+      
+      h1 {
+        font-size: 28px;
+        border-bottom: 4px solid #0ff;
+        padding-bottom: 20px;
+        margin-bottom: 40px;
+      }
+      
+      .card {
+        background: #111;
+        border: 4px solid #ffd900;
+        box-shadow: 0 0 20px #ffd900, inset 0 0 10px #ffd900;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 0;
+        position: relative;
+      }
+      
+      button {
+        background-color: #222;
+        border: 3px solid #ffd900;
+        color: #ffd900;
+        padding: 10px 15px;
+        cursor: pointer;
+        margin: 10px 5px;
+        transition: all 0.3s;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        text-transform: uppercase;
+        box-shadow: 0 0 10px #ffd900;
+      }
+      
+      button:hover {
+        background-color: #ffd900;
+        color: #000;
+        transform: scale(1.05);
+      }
+      
+      button:active {
+        transform: scale(0.95);
+      }
+      
+      input, select {
+        padding: 10px;
+        background-color: #000;
+        border: 3px solid #ffd900;
+        color: #ffd900;
+        margin: 10px 5px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        box-shadow: 0 0 10px #ffd900;
+      }
+      
+      #word-ladder {
+        list-style-type: none;
+        padding: 0;
+      }
+      
+      #word-ladder li {
+        background-color: #111;
+        border-left: 8px solid #ffd900;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        border-radius: 0;
+        box-shadow: 0 0 10px #ffd900;
+        letter-spacing: 3px;
+      }
+      
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+      
+      .info-box {
+        background-color: #111;
+        border: 3px solid #0ff;
+        padding: 15px;
+        width: 28%;
+        text-align: center;
+        box-shadow: 0 0 10px #0ff;
+      }
+      
+      .info-box h4 {
+        margin: 0 0 10px 0;
+        font-size: 12px;
+      }
+      
+      .error-message {
+        color: #f00;
+        font-weight: bold;
+        text-shadow: 0 0 10px #f00;
+      }
+      
+      .success-message {
+        color: #ffd900;
+        font-weight: bold;
+        text-shadow: 0 0 10px #ffd900;
+      }
+      
+      #visualization {
+        width: 100%;
+        margin: 20px 0;
+        text-align: center;
+        border: 3px solid #ffd900;
+        padding: 15px;
+        background: #000;
+        box-shadow: 0 0 20px #ffd900;
+      }
+      
+      #visualization img {
+        max-width: 100%;
+        border: 2px solid #ffd900;
+      }
+      
+      .moves-counter {
+        text-align: center;
+        font-size: 16px;
+        margin: 20px 0;
+        color: #ff0;
+        text-shadow: 0 0 10px #ff0;
+      }
+      
+      .banned-word {
+        color: #f00;
+        text-decoration: line-through;
+        text-shadow: 0 0 5px #f00;
+      }
+      
+      #score-display {
+        font-size: 24px;
+        text-align: center;
+        padding: 20px;
+        margin: 20px 0;
+        background-color: #000;
+        color: #ff0;
+        border: 3px solid #ff0;
+        text-shadow: 0 0 10px #ff0;
+        box-shadow: 0 0 20px #ff0;
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% { box-shadow: 0 0 10px #ff0; }
+        50% { box-shadow: 0 0 30px #ff0; }
+        100% { box-shadow: 0 0 10px #ff0; }
+      }
+      
+      #timer {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        color: #f0f;
+        text-shadow: 0 0 10px #f0f;
+        margin: 20px 0;
+        border: 2px solid #f0f;
+        display: inline-block;
+        padding: 10px 20px;
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      .tab {
+        overflow: hidden;
+        border: 3px solid #0ff;
+        background-color: #000;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+      
+      .tab button {
+        background-color: #000;
+        float: left;
+        border: none;
+        border-right: 3px solid #0ff;
+        outline: none;
+        cursor: pointer;
+        padding: 15px;
+        transition: 0.3s;
+        color: #0ff;
+        flex: 1;
+        margin: 0;
+        box-shadow: none;
+      }
+      
+      .tab button:last-child {
+        border-right: none;
+      }
+      
+      .tab button:hover {
+        background-color: #003333;
+        color: #0ff;
+        transform: none;
+      }
+      
+      .tab button.active {
+        background-color: #0ff;
+        color: #000;
+      }
+      
+      .tabcontent {
+        display: none;
+        padding: 20px;
+        border: 3px solid #0ff;
+        border-top: none;
+        box-shadow: 0 0 20px #0ff;
+        background-color: #111;
+      }
+      
+      #leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #ffd900;
+        border: 2px solid #ffd900;
+      }
+      
+      #leaderboard-table th, #leaderboard-table td {
+        border: 2px solid #ffd900;
+        padding: 12px;
+        text-align: left;
+      }
+      
+      #leaderboard-table th {
+        background-color: #003300;
+      }
+      
+      #leaderboard-table tr:nth-child(even) {
+        background-color: #001100;
+      }
+      
+      #leaderboard-table tr:hover {
+        background-color: #004400;
+      }
+      
+      /* Custom blinking cursor */
+      input:focus {
+        animation: blink 1s step-end infinite;
+      }
+      
+      @keyframes blink {
+        0%, 100% { border-color: #ffd900; }
+        50% { border-color: transparent; }
+      }
+      
+      /* Retro CRT effect */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+        pointer-events: none;
+        z-index: 1000;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 600px) {
+        .info-row {
+          flex-direction: column;
+        }
+        
+        .info-box {
+          width: 100%;
+          margin-bottom: 15px;
+        }
+        
+        button, input {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>Word Ladder Game</h1>
-    <div id="game-container">
-      <div id="step-1">
-        <label>Enter your name:</label>
-        <input type="text" id="username" required />
-        <button onclick="goToStep2()">Start</button>
-      </div>
+    <h1>WORD LADDER</h1>
+    
+    <div class="tab">
+      <button class="tablinks active" onclick="openTab(event, 'game-tab')">PLAY</button>
+      <button class="tablinks" onclick="openTab(event, 'leaderboard-tab')">SCORES</button>
+      <button class="tablinks" onclick="openTab(event, 'about-tab')">INFO</button>
+    </div>
+    
+    <div id="game-tab" class="tabcontent" style="display: block;">
+      <div id="game-container">
+        <div id="step-1" class="card">
+          <h2>ENTER NAME</h2>
+          <label for="username">PLAYER:</label>
+          <input type="text" id="username" required />
+          <button onclick="goToStep2()">CONTINUE</button>
+        </div>
 
-      <div id="step-2" style="display: none">
-        <h3>Select Difficulty</h3>
-        <button onclick="startGame('easy')">Easy</button>
-        <button onclick="startGame('medium')">Medium</button>
-        <button onclick="startGame('hard')">Hard</button>
-      </div>
+        <div id="step-2" class="card" style="display: none">
+          <h2>GAME MODE</h2>
+          
+          <div class="tab">
+            <button class="tablinks active" onclick="openModeTab(event, 'random-mode')">RANDOM</button>
+            <button class="tablinks" onclick="openModeTab(event, 'custom-mode')">CUSTOM</button>
+          </div>
+          
+          <div id="random-mode" class="tabcontent" style="display: block;">
+            <h3>SELECT DIFFICULTY</h3>
+            <button onclick="startGame('easy')">EASY (3-4)</button>
+            <button onclick="startGame('medium')">MEDIUM (5-6)</button>
+            <button onclick="startGame('hard')">HARD (7+)</button>
+            <button onclick="startGame('challenge')">CHALLENGE</button>
+            <p><i>CHALLENGE MODE HAS BANNED WORDS AND LIMITED MOVES!</i></p>
+          </div>
+          
+          <div id="custom-mode" class="tabcontent">
+            <h3>CUSTOM WORDS</h3>
+            <p>SELECT TWO WORDS TO CREATE YOUR OWN CHALLENGE.</p>
+            <input type="text" id="custom-start" placeholder="START WORD" />
+            <input type="text" id="custom-end" placeholder="END WORD" />
+            <button onclick="checkCustomPath()">CHECK PATH</button>
+            <button onclick="startCustomGame()" disabled id="start-custom-btn">START GAME</button>
+            <p id="custom-message"></p>
+          </div>
+        </div>
 
-      <div id="step-3" style="display: none">
-        <h3>Game Details</h3>
-        <p><b>Start Word:</b> <span id="start-word"></span></p>
-        <p><b>End Word:</b> <span id="end-word"></span></p>
-        <p><b>Your Progress:</b></p>
-        <ul id="word-ladder"></ul>
+        <div id="step-3" class="card" style="display: none">
+          <h2>WORD LADDER CHALLENGE</h2>
+          
+          <div class="info-row">
+            <div class="info-box">
+              <h4>START</h4>
+              <div id="start-word"></div>
+            </div>
+            <div class="info-box">
+              <h4>TARGET</h4>
+              <div id="end-word"></div>
+            </div>
+            <div class="info-box">
+              <h4>MODE</h4>
+              <div id="game-mode"></div>
+            </div>
+          </div>
+          
+          <div id="timer">TIME: 0:00</div>
+          
+          <div class="moves-counter">
+            MOVES: <span id="moves-count">0</span>
+            <span id="max-moves-display"></span>
+          </div>
 
-        <p>Try changing one letter at a time.</p>
-        <input type="text" id="current-word" readonly />
-        <input type="text" id="new-word" placeholder="Enter new word" />
-        <button onclick="submitWord()">Submit</button>
-        <button onclick="getHint()">Hint</button>
-        <select id="algorithm">
-          <option value="BFS">BFS</option>
-          <option value="UCS">UCS</option>
-          <option value="A*">A*</option>
-        </select>
-        <p id="message"></p>
+          <h3>YOUR LADDER</h3>
+          <ul id="word-ladder"></ul>
+
+          <div>
+            <p>CHANGE ONE LETTER AT A TIME TO REACH TARGET</p>
+            <input type="text" id="current-word" readonly />
+            <input type="text" id="new-word" placeholder="NEXT WORD" />
+            <button onclick="submitWord()">SUBMIT</button>
+          </div>
+          
+          <div style="margin-top: 20px;">
+            <h3>NEED HELP?</h3>
+            <p>SELECT ALGORITHM FOR HINT:</p>
+            <select id="algorithm">
+              <option value="BFS">BFS SEARCH</option>
+              <option value="UCS">UCS SEARCH</option>
+              <option value="A*">A* SEARCH</option>
+              <option value="Greedy">GREEDY SEARCH</option>
+            </select>
+            <button onclick="getHint()">GET HINT</button>
+          </div>
+          
+          <p id="message"></p>
+          
+          <div id="visualization" style="display: none;">
+            <h3>PATH MAP</h3>
+            <img id="graph-image" src="" alt="Word ladder path visualization">
+          </div>
+        </div>
+        
+        <div id="game-over" class="card" style="display: none;">
+          <h2>GAME COMPLETE!</h2>
+          <div id="score-display"></div>
+          <p>YOU TRANSFORMED "<span id="final-start-word"></span>" INTO "<span id="final-end-word"></span>"</p>
+          <p>YOU TOOK <span id="final-moves"></span> MOVES. OPTIMAL PATH: <span id="optimal-moves"></span> MOVES</p>
+          <button onclick="playAgain()">PLAY AGAIN</button>
+        </div>
       </div>
+    </div>
+    
+    <div id="leaderboard-tab" class="tabcontent">
+      <h2>HIGH SCORES</h2>
+      <table id="leaderboard-table">
+        <thead>
+          <tr>
+            <th>RANK</th>
+            <th>PLAYER</th>
+            <th>SCORE</th>
+            <th>DIFFICULTY</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <!-- Leaderboard data will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="about-tab" class="tabcontent">
+      <h2>ABOUT WORD LADDER</h2>
+      <p>WORD LADDER WAS INVENTED BY LEWIS CARROLL IN 1877. TRANSFORM ONE WORD INTO ANOTHER BY CHANGING ONE LETTER AT A TIME.</p>
+      
+      <h3>HOW TO PLAY</h3>
+      <ol>
+        <li>START WITH A WORD AND REACH TARGET WORD</li>
+        <li>CHANGE ONE LETTER AT A TIME</li>
+        <li>EACH STEP MUST BE A VALID WORD</li>
+        <li>COMPLETE IN AS FEW MOVES AS POSSIBLE</li>
+      </ol>
+      
+      <h3>GAME MODES</h3>
+      <ul>
+        <li><strong>EASY:</strong> 3-4 LETTER WORDS</li>
+        <li><strong>MEDIUM:</strong> 5-6 LETTER WORDS</li>
+        <li><strong>HARD:</strong> 7+ LETTER WORDS</li>
+        <li><strong>CHALLENGE:</strong> BANNED WORDS + LIMITS</li>
+      </ul>
+      
+      <h3>ALGORITHMS</h3>
+      <p>THIS GAME USES FOUR SEARCH ALGORITHMS:</p>
+      <ul>
+        <li><strong>BFS:</strong> EXPLORES ALL NEIGHBORS</li>
+        <li><strong>UCS:</strong> CONSIDERS MOVE COSTS</li>
+        <li><strong>A*:</strong> COMBINES COST AND HEURISTIC</li>
+        <li><strong>GREEDY:</strong> CHOOSES CLOSEST WORD</li>
+      </ul>
     </div>
 
     <script>
+      // Game state variables
       let startWord = "";
       let endWord = "";
       let currentWord = "";
       let ladder = [];
+      let moves = 0;
+      let maxMoves = null;
+      let gameMode = "normal";
+      let gameId = "";
+      let startTime = null;
+      let timerInterval = null;
+      let optimalPathLength = 0;
+      
+      // Custom words state
+      let customPathValid = false;
+      let customPathLength = 0;
+
+      function openTab(evt, tabName) {
+        const tabcontent = document.getElementsByClassName("tabcontent");
+        for (let i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        const tablinks = document.getElementsByClassName("tablinks");
+        for (let i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        
+        if (tabName === "leaderboard-tab") {
+          loadLeaderboard();
+        }
+      }
+      
+      function openModeTab(evt, tabName) {
+        const tabcontent = document.querySelectorAll("#step-2 .tabcontent");
+        for (let i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        const tablinks = document.querySelectorAll("#step-2 .tablinks");
+        for (let i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+      }
 
       function goToStep2() {
-        document.getElementById("step-1").style.display = "none";
-        document.getElementById("step-2").style.display = "block";
+        const username = document.getElementById('username').value;
+        if (!username) {
+          alert('PLEASE ENTER YOUR NAME!');
+          return;
+        }
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
       }
 
-      function startGame(difficulty) {
-        fetch("/start_game", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+      async function startGame(difficulty) {
+        const response = await fetch('/start_game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
-            username: document.getElementById("username").value,
-            difficulty: difficulty,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            startWord = data.start_word;
-            endWord = data.end_word;
-            currentWord = startWord;
-            ladder = [startWord];
+            username: document.getElementById('username').value,
+            difficulty: difficulty
+          })
+        });
+        
+        const data = await response.json();
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
 
-            document.getElementById("start-word").innerText = startWord;
-            document.getElementById("end-word").innerText = endWord;
-            document.getElementById("current-word").value = currentWord;
+        startWord = data.start_word;
+        endWord = data.end_word;
+        currentWord = startWord;
+        optimalPathLength = data.path_length;
+        maxMoves = data.max_moves;
+        gameMode = data.mode;
+        gameId = data.game_id;
 
-            document.getElementById(
-              "word-ladder"
-            ).innerHTML = `<li>${startWord}</li>`;
-
-            document.getElementById("step-2").style.display = "none";
-            document.getElementById("step-3").style.display = "block";
-          });
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-3').style.display = 'block';
+        document.getElementById('start-word').textContent = startWord;
+        document.getElementById('end-word').textContent = endWord;
+        document.getElementById('game-mode').textContent = gameMode;
+        document.getElementById('current-word').value = startWord;
+        document.getElementById('max-moves-display').textContent = maxMoves ? `/ ${maxMoves}` : '';
+        
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 1000);
+        updateLadderDisplay();
       }
 
-      function submitWord() {
-        let newWord = document.getElementById("new-word").value.toLowerCase();
-
-        fetch("/check_word", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+      async function submitWord() {
+        const newWord = document.getElementById('new-word').value.toLowerCase();
+        const response = await fetch('/check_word', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             current_word: currentWord,
             new_word: newWord,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.valid) {
-              ladder.push(newWord);
-              currentWord = newWord;
-              document.getElementById("current-word").value = currentWord;
+            mode: gameMode
+          })
+        });
 
-              let ladderList = document.getElementById("word-ladder");
-              let newListItem = document.createElement("li");
-              newListItem.textContent = newWord;
-              ladderList.appendChild(newListItem);
+        const result = await response.json();
+        if (!result.valid) {
+          showMessage(result.message || 'INVALID MOVE!', 'error');
+          return;
+        }
 
-              if (newWord === endWord) {
-                document.getElementById("message").innerText =
-                  "Congratulations! You reached the final word!";
-              } else {
-                document.getElementById("message").innerText =
-                  "Good move! Keep going.";
-              }
-            } else {
-              document.getElementById("message").innerText =
-                "Invalid move. Try again.";
-            }
-            document.getElementById("new-word").value = "";
-          });
+        moves++;
+        currentWord = newWord;
+        ladder.push(newWord);
+        document.getElementById('new-word').value = '';
+        document.getElementById('current-word').value = newWord;
+        document.getElementById('moves-count').textContent = moves;
+        updateLadderDisplay();
+
+        if (newWord === endWord) {
+          endGame();
+        } else if (maxMoves && moves >= maxMoves) {
+          showMessage('GAME OVER! MAX MOVES REACHED.', 'error');
+          endGame();
+        }
       }
 
-      function getHint() {
-        fetch("/hint", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+      async function getHint() {
+        const algorithm = document.getElementById('algorithm').value;
+        const response = await fetch('/hint', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             current_word: currentWord,
             end_word: endWord,
-            algorithm: document.getElementById("algorithm").value,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.hint) {
-              alert(
-                "Hint: Try changing '" +
-                  currentWord +
-                  "' to '" +
-                  data.hint +
-                  "'"
-              );
-            } else {
-              alert("No valid hint available.");
-            }
-          });
+            algorithm: algorithm,
+            mode: gameMode
+          })
+        });
+
+        const result = await response.json();
+        if (result.hint) {
+          showMessage(`TRY: ${result.hint}`, 'success');
+          document.getElementById('graph-image').src = result.graph;
+          document.getElementById('visualization').style.display = 'block';
+        } else {
+          showMessage(result.message, 'error');
+        }
       }
+
+      function updateLadderDisplay() {
+        const ladderList = document.getElementById('word-ladder');
+        ladderList.innerHTML = '';
+        ladder.forEach(word => {
+          const li = document.createElement('li');
+          li.textContent = word;
+          if (banned_words.has(word) && gameMode === 'challenge') {
+            li.classList.add('banned-word');
+          }
+          ladderList.appendChild(li);
+        });
+      }
+
+      function showMessage(message, type) {
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = message;
+        messageEl.className = `${type}-message`;
+        setTimeout(() => messageEl.textContent = '', 3000);
+      }
+
+      function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('timer').textContent = 
+          `TIME: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+
+      async function endGame() {
+        clearInterval(timerInterval);
+        const response = await fetch('/end_game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            game_id: gameId,
+            moves: moves,
+            optimal_path_length: optimalPathLength,
+            difficulty: gameMode
+          })
+        });
+
+        const result = await response.json();
+        document.getElementById('step-3').style.display = 'none';
+        document.getElementById('game-over').style.display = 'block';
+        document.getElementById('final-start-word').textContent = startWord;
+        document.getElementById('final-end-word').textContent = endWord;
+        document.getElementById('final-moves').textContent = moves;
+        document.getElementById('optimal-moves').textContent = optimalPathLength;
+        document.getElementById('score-display').textContent = `SCORE: ${result.score}`;
+      }
+
+      function playAgain() {
+        document.getElementById('game-over').style.display = 'none';
+        document.getElementById('step-1').style.display = 'block';
+        resetGameState();
+      }
+
+      function resetGameState() {
+        startWord = '';
+        endWord = '';
+        currentWord = '';
+        ladder = [];
+        moves = 0;
+        maxMoves = null;
+        gameMode = 'normal';
+        gameId = '';
+        clearInterval(timerInterval);
+      }
+
+      async function loadLeaderboard() {
+        const response = await fetch('/leaderboard');
+        const data = await response.json();
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+        data.leaderboard.forEach((entry, index) => {
+          const row = `<tr>
+            <td>${index + 1}</td>
+            <td>${entry.username}</td>
+            <td>${entry.score}</td>
+            <td>${entry.difficulty}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      }
+
+      // Initialize banned words list (mock data)
+      const banned_words = new Set(['apple', 'banana', 'cherry']); // Replace with actual banned words
     </script>
   </body>
 </html>
