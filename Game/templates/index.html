@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Ladder Game</title>
+  </head>
+  <body>
+    <h1>Word Ladder Game</h1>
+    <div id="game-container">
+      <div id="step-1">
+        <label>Enter your name:</label>
+        <input type="text" id="username" required />
+        <button onclick="goToStep2()">Start</button>
+      </div>
+
+      <div id="step-2" style="display: none">
+        <h3>Select Difficulty</h3>
+        <button onclick="startGame('easy')">Easy</button>
+        <button onclick="startGame('medium')">Medium</button>
+        <button onclick="startGame('hard')">Hard</button>
+      </div>
+
+      <div id="step-3" style="display: none">
+        <h3>Game Details</h3>
+        <p><b>Start Word:</b> <span id="start-word"></span></p>
+        <p><b>End Word:</b> <span id="end-word"></span></p>
+        <p><b>Your Progress:</b></p>
+        <ul id="word-ladder"></ul>
+
+        <p>Try changing one letter at a time.</p>
+        <input type="text" id="current-word" readonly />
+        <input type="text" id="new-word" placeholder="Enter new word" />
+        <button onclick="submitWord()">Submit</button>
+        <button onclick="getHint()">Hint</button>
+        <select id="algorithm">
+          <option value="BFS">BFS</option>
+          <option value="UCS">UCS</option>
+          <option value="A*">A*</option>
+        </select>
+        <p id="message"></p>
+      </div>
+    </div>
+
+    <script>
+      let startWord = "";
+      let endWord = "";
+      let currentWord = "";
+      let ladder = [];
+
+      function goToStep2() {
+        document.getElementById("step-1").style.display = "none";
+        document.getElementById("step-2").style.display = "block";
+      }
+
+      function startGame(difficulty) {
+        fetch("/start_game", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            difficulty: difficulty,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            startWord = data.start_word;
+            endWord = data.end_word;
+            currentWord = startWord;
+            ladder = [startWord];
+
+            document.getElementById("start-word").innerText = startWord;
+            document.getElementById("end-word").innerText = endWord;
+            document.getElementById("current-word").value = currentWord;
+
+            document.getElementById(
+              "word-ladder"
+            ).innerHTML = `<li>${startWord}</li>`;
+
+            document.getElementById("step-2").style.display = "none";
+            document.getElementById("step-3").style.display = "block";
+          });
+      }
+
+      function submitWord() {
+        let newWord = document.getElementById("new-word").value.toLowerCase();
+
+        fetch("/check_word", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            current_word: currentWord,
+            new_word: newWord,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.valid) {
+              ladder.push(newWord);
+              currentWord = newWord;
+              document.getElementById("current-word").value = currentWord;
+
+              let ladderList = document.getElementById("word-ladder");
+              let newListItem = document.createElement("li");
+              newListItem.textContent = newWord;
+              ladderList.appendChild(newListItem);
+
+              if (newWord === endWord) {
+                document.getElementById("message").innerText =
+                  "Congratulations! You reached the final word!";
+              } else {
+                document.getElementById("message").innerText =
+                  "Good move! Keep going.";
+              }
+            } else {
+              document.getElementById("message").innerText =
+                "Invalid move. Try again.";
+            }
+            document.getElementById("new-word").value = "";
+          });
+      }
+
+      function getHint() {
+        fetch("/hint", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            current_word: currentWord,
+            end_word: endWord,
+            algorithm: document.getElementById("algorithm").value,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.hint) {
+              alert(
+                "Hint: Try changing '" +
+                  currentWord +
+                  "' to '" +
+                  data.hint +
+                  "'"
+              );
+            } else {
+              alert("No valid hint available.");
+            }
+          });
+      }
+    </script>
+  </body>
+</html>
