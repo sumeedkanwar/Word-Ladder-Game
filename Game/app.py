@@ -224,12 +224,12 @@ def start_game():
         max_moves = random.randint(10, 12)
         mode = "normal"
     elif difficulty == "hard":
-        words_length = [7, 10]
-        max_moves = random.randint(8, 12)
+        words_length = [6, 8]  # Adjusted to be more challenging
+        max_moves = random.randint(10, 15)  # Increased max moves for longer words
         mode = "normal"
     elif difficulty == "challenge":
-        words_length = [4, 7]  # Mix of medium-sized words
-        max_moves = random.randint(6, 10)  # Fewer moves allowed
+        words_length = [4, 7]
+        max_moves = random.randint(6, 10)
         mode = "challenge"
     else:
         return jsonify({"error": "Invalid difficulty level"}), 400
@@ -244,43 +244,54 @@ def start_game():
             return jsonify({"error": f"'{start_word}' is not in our dictionary."})
         if end_word not in valid_words:
             return jsonify({"error": f"'{end_word}' is not in our dictionary."})
+        if len(start_word) != len(end_word):
+            return jsonify({"error": "Start word and end word must be the same length."})
+        if start_word == end_word:
+            return jsonify({"error": "Start word and end word must be different."})
         
         # Check if a path exists
         path = bfs(start_word, end_word)
         if not path:
             return jsonify({"error": "No valid path exists between these words."})
+            
+        # Set max_moves based on path length for custom games
+        optimal_path_length = len(path) - 1
+        max_moves = optimal_path_length + 5  # Give 5 extra moves beyond optimal
     else:
         # Generate random words based on difficulty
         attempts = 0
-        while attempts < 50:  # Limit attempts to avoid infinite loop
-            # Choose random word lengths from the specified range
+        min_path_length = 3  # Minimum path length for generated words
+        max_path_length = 12 if difficulty == "hard" else 8  # Longer paths for hard mode
+        
+        while attempts < 50:
             length = random.choice(words_length)
             if length not in words_by_length or len(words_by_length[length]) < 2:
                 continue
             
-            # Get two random words of the chosen length
             available_words = words_by_length[length]
             start_word = random.choice(available_words)
             end_word = random.choice(available_words)
             
-            # Don't use the same word for start and end
             if start_word == end_word:
                 continue
                 
-            # In challenge mode, check banned words
             if mode == "challenge" and (start_word in banned_words or end_word in banned_words):
                 continue
                 
-            # Verify a path exists
             path = bfs(start_word, end_word)
-            if path and 3 <= len(path) <= 15:  # Ensure reasonable path length
+            path_length = len(path) if path else 0
+            
+            # Ensure path meets difficulty requirements
+            if path and min_path_length <= path_length <= max_path_length:
+                if difficulty == "hard" and path_length < 6:  # Ensure hard mode has longer paths
+                    continue
                 break
                 
             attempts += 1
         
         if attempts >= 50:
             return jsonify({"error": "Could not generate a suitable word pair. Please try again."})
-    
+
     # Calculate the optimal path length
     optimal_path_length = len(path) - 1  # Subtract 1 because we count moves, not words
     
